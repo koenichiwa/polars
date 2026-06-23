@@ -1521,12 +1521,12 @@ impl PyLazyFrame {
     }
 
     #[cfg(feature = "merge_sorted")]
-    fn merge_sorted(&self, other: Self, key: &str, maintain_order: bool) -> PyResult<Self> {
+    fn merge_sorted(&self, other: Self, key: Vec<String>, maintain_order: bool) -> PyResult<Self> {
         let out = self
             .ldf
             .read()
             .clone()
-            .merge_sorted(other.ldf.into_inner(), key, maintain_order)
+            .merge_sorted(other.ldf.into_inner(), &key[0], maintain_order)
             .map_err(PyPolarsErr::from)?;
         Ok(out.into())
     }
