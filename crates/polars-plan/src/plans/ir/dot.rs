@@ -341,6 +341,7 @@ impl<'a> IRDotDisplay<'a> {
                 recurse!(*input_left);
                 recurse!(*input_right);
 
+                // FIXME: display for Vec<PlSmallStr>
                 write_label(f, id, |f| {
                     write!(
                         f,

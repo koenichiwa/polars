@@ -1601,6 +1601,7 @@ pub fn to_alp_impl(lp: DslPlan, ctxt: &mut DslConversionContext) -> PolarsResult
                 .ensure_is_exact_match(&right_schema)
                 .map_err(|err| err.context("merge_sorted".into()))?;
 
+            // FIXME: check all columns
             left_schema
                 .try_get(key[0].as_str())
                 .map_err(|err| err.context("merge_sorted".into()))?;

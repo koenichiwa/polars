@@ -1030,7 +1030,9 @@ pub fn write_ir_non_recursive(
             input_right: _,
             key,
             maintain_order,
-        } => write!(
+        } => 
+        // FIXME: display for Vec<PlSmallStr>
+        write!(
             f,
             "{:indent$}MERGE SORTED[maintain_order: {}] ON '{}'",
             "", maintain_order, key[0]

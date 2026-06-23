@@ -79,6 +79,8 @@ fn collect_merge_sorted_inputs(
 
     while let Some(node) = traversal_stack.pop() {
         match lp_arena.get(node) {
+            // TODO: Is check on `*merge_key == key` correct?
+
             IR::MergeSorted {
                 input_left,
                 input_right,

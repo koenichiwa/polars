@@ -422,7 +422,9 @@ impl<'a> TreeFmtNode<'a> {
                     input_right,
                     key,
                     maintain_order,
-                } => ND(
+                } => 
+                // FIXME: display for Vec<PlSmallStr>. Should maintain_order be {:?} formatted?
+                ND(
                     wh(
                         h,
                         &format!(
