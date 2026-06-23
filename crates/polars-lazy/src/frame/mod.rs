@@ -1958,9 +1958,9 @@ impl LazyFrame {
         maintain_order: bool,
     ) -> PolarsResult<LazyFrame>
     where
-        S: Into<PlSmallStr> + Clone,
+        S: Into<PlSmallStr>,
     {
-        let key = key[0].clone().into();
+        let key = key.into_iter().map(Into::into).collect();
 
         let lp = DslPlan::MergeSorted {
             input_left: Arc::new(self.logical_plan),

@@ -1526,7 +1526,7 @@ impl PyLazyFrame {
             .ldf
             .read()
             .clone()
-            .merge_sorted(other.ldf.into_inner(), &key[0], maintain_order)
+            .merge_sorted(other.ldf.into_inner(), key, maintain_order)
             .map_err(PyPolarsErr::from)?;
         Ok(out.into())
     }

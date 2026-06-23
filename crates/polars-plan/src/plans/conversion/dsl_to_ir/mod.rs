@@ -1602,13 +1602,13 @@ pub fn to_alp_impl(lp: DslPlan, ctxt: &mut DslConversionContext) -> PolarsResult
                 .map_err(|err| err.context("merge_sorted".into()))?;
 
             left_schema
-                .try_get(key.as_str())
+                .try_get(key[0].as_str())
                 .map_err(|err| err.context("merge_sorted".into()))?;
 
             IR::MergeSorted {
                 input_left,
                 input_right,
-                key,
+                key: key[0].clone(),
                 maintain_order,
             }
         },
