@@ -9091,7 +9091,7 @@ naive plan: (run LazyFrame.explain(optimized=True) to see the optimized plan)
     def merge_sorted(
         self,
         other: LazyFrame,
-        key: str,
+        key: str | Sequence[str],
         *,
         maintain_order: bool = False,
     ) -> LazyFrame:
@@ -9172,6 +9172,8 @@ naive plan: (run LazyFrame.explain(optimized=True) to see the optimized plan)
         The key must be sorted in ascending order.
         """
         require_same_type(self, other)
+        if isinstance(key, str):
+            key = [key]
         return self._from_pyldf(self._ldf.merge_sorted(other._ldf, key, maintain_order))
 
     def set_sorted(
