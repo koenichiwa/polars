@@ -12581,7 +12581,7 @@ class DataFrame:
     def merge_sorted(
         self,
         other: DataFrame,
-        key: str,
+        key: str | Sequence[str],
         *,
         maintain_order: bool = False,
     ) -> DataFrame:
