@@ -13,26 +13,24 @@ pub fn _merge_sorted_dfs(
     right_s: &[&Series],
     check_schema: bool,
 ) -> PolarsResult<DataFrame> {
-    // FIXME: multiple columns
-    let left_s = left_s[0];
-    let right_s = right_s[0];
     if check_schema {
         left.schema_equal(right)?;
     }
-    let dtype_lhs = left_s.dtype();
-    let dtype_rhs = right_s.dtype();
 
     polars_ensure!(
-        dtype_lhs == dtype_rhs,
-        ComputeError: "merge-sort datatype mismatch: {} != {}", dtype_lhs, dtype_rhs
+        left_s.iter().zip(right_s).all(|(left_s, right_s)| left_s.dtype() == right_s.dtype()),
+        ComputeError: "merge-sort datatype mismatch: {:?} != {:?}", left_s, right_s
     );
 
     // If one frame is empty, we can return the other immediately.
-    if right_s.is_empty() {
+    if right_s[0].is_empty() {
         return Ok(left.clone());
-    } else if left_s.is_empty() {
+    } else if left_s[0].is_empty() {
         return Ok(right.clone());
     }
+
+    let left_s = left_s[0];
+    let right_s = right_s[0];
 
     // FIXME: Add dataframe_to_merge_indicator
     let merge_indicator = series_to_merge_indicator(left_s, right_s)?;
