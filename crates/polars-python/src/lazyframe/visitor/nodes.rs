@@ -16,6 +16,8 @@ use pyo3::types::{PyDict, PyList, PyString};
 use super::expr_nodes::PyGroupbyOptions;
 use crate::PyDataFrame;
 use crate::lazyframe::visit::PyExprIR;
+#[cfg(feature = "merge_sorted")]
+use std::string::ToString;
 
 fn scan_type_to_pyobject(
     py: Python<'_>,
@@ -293,7 +295,7 @@ pub struct MergeSorted {
     #[pyo3(get)]
     input_right: usize,
     #[pyo3(get)]
-    key: String,
+    key: Vec<String>,
     #[pyo3(get)]
     maintain_order: bool,
 }
@@ -783,7 +785,7 @@ pub(crate) fn into_py(py: Python<'_>, plan: &IR) -> PyResult<Py<PyAny>> {
         } => MergeSorted {
             input_left: input_left.0,
             input_right: input_right.0,
-            key: key[0].to_string(),
+            key: key.iter().map(ToString::to_string).collect(),
             maintain_order: *maintain_order,
         }
         .into_py_any(py),
