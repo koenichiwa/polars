@@ -9,10 +9,13 @@ use polars_core::with_match_physical_numeric_polars_type;
 pub fn _merge_sorted_dfs(
     left: &DataFrame,
     right: &DataFrame,
-    left_s: &Series,
-    right_s: &Series,
+    left_s: &[&Series],
+    right_s: &[&Series],
     check_schema: bool,
 ) -> PolarsResult<DataFrame> {
+    // FIXME: multiple columns
+    let left_s = left_s[0];
+    let right_s = right_s[0];
     if check_schema {
         left.schema_equal(right)?;
     }

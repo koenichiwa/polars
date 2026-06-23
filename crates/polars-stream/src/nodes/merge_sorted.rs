@@ -481,6 +481,7 @@ impl ComputeNode for MergeSortedNode {
                             }
 
                             let (mut left, seq, source_token, _) = left.into_inner();
+                            // FIXME: take X columns, depending on the key
                             let left_s = left
                                 .columns()
                                 .last()
@@ -498,7 +499,7 @@ impl ComputeNode for MergeSortedNode {
                             remove_key_column(&mut right);
 
                             let merged =
-                                _merge_sorted_dfs(&left, &right, &left_s, &right_s, false)?;
+                                _merge_sorted_dfs(&left, &right, &[&left_s], &[&right_s], false)?;
 
                             if ideal_morsel_size > 1 && merged.height() > ideal_morsel_size {
                                 // The merged dataframe will have at most doubled in size from the

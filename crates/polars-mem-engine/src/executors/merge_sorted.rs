@@ -32,17 +32,18 @@ impl Executor for MergeSorted {
         let profile_name = Cow::Borrowed("Merge Sorted");
         state.record(
             || {
-                // FIXME: multiple columns
-                let lhs = left.column(self.key[0].as_str())?;
-                let rhs = right.column(self.key[0].as_str())?;
+                let (lhs, rhs) = self
+                    .key
+                    .iter()
+                    .map(|key| {
+                        Ok((
+                            left.column(key.as_str())?.as_materialized_series(),
+                            right.column(key.as_str())?.as_materialized_series(),
+                        ))
+                    })
+                    .collect::<Result<(Vec<_>, Vec<_>), PolarsError>>()?;
 
-                _merge_sorted_dfs(
-                    &left,
-                    &right,
-                    lhs.as_materialized_series(),
-                    rhs.as_materialized_series(),
-                    true,
-                )
+                _merge_sorted_dfs(&left, &right, &lhs, &rhs, true)
             },
             profile_name,
         )
