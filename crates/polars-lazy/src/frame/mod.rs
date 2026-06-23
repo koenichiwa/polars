@@ -1954,13 +1954,13 @@ impl LazyFrame {
     pub fn merge_sorted<S>(
         self,
         other: LazyFrame,
-        key: S,
+        key: Vec<S>,
         maintain_order: bool,
     ) -> PolarsResult<LazyFrame>
     where
-        S: Into<PlSmallStr>,
+        S: Into<PlSmallStr> + Clone,
     {
-        let key = key.into();
+        let key = key[0].clone().into();
 
         let lp = DslPlan::MergeSorted {
             input_left: Arc::new(self.logical_plan),
