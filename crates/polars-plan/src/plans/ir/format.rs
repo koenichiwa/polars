@@ -1030,13 +1030,15 @@ pub fn write_ir_non_recursive(
             input_right: _,
             key,
             maintain_order,
-        } => 
+        } =>
         // FIXME: display for Vec<PlSmallStr>
-        write!(
-            f,
-            "{:indent$}MERGE SORTED[maintain_order: {}] ON '{}'",
-            "", maintain_order, key[0]
-        ),
+        {
+            write!(
+                f,
+                "{:indent$}MERGE SORTED[maintain_order: {}] ON '{}'",
+                "", maintain_order, key[0]
+            )
+        },
         IR::UnoptimizedDispatch {
             inputs: _,
             arg_map: _,

@@ -1,3 +1,6 @@
+#[cfg(feature = "merge_sorted")]
+use std::string::ToString;
+
 #[cfg(feature = "iejoin")]
 use polars::prelude::JoinTypeOptionsIR;
 use polars::prelude::deletion::DeletionFilesList;
@@ -16,8 +19,6 @@ use pyo3::types::{PyDict, PyList, PyString};
 use super::expr_nodes::PyGroupbyOptions;
 use crate::PyDataFrame;
 use crate::lazyframe::visit::PyExprIR;
-#[cfg(feature = "merge_sorted")]
-use std::string::ToString;
 
 fn scan_type_to_pyobject(
     py: Python<'_>,

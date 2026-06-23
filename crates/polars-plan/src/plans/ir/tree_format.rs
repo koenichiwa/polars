@@ -422,21 +422,23 @@ impl<'a> TreeFmtNode<'a> {
                     input_right,
                     key,
                     maintain_order,
-                } => 
+                } =>
                 // FIXME: display for Vec<PlSmallStr>. Should maintain_order be {:?} formatted?
-                ND(
-                    wh(
-                        h,
-                        &format!(
-                            "MERGE SORTED[maintain_order: {:?}] ON '{}'",
-                            maintain_order, key[0]
+                {
+                    ND(
+                        wh(
+                            h,
+                            &format!(
+                                "MERGE SORTED[maintain_order: {:?}] ON '{}'",
+                                maintain_order, key[0]
+                            ),
                         ),
-                    ),
-                    [self.lp_node(Some("LEFT PLAN:".to_string()), *input_left)]
-                        .into_iter()
-                        .chain([self.lp_node(Some("RIGHT PLAN:".to_string()), *input_right)])
-                        .collect(),
-                ),
+                        [self.lp_node(Some("LEFT PLAN:".to_string()), *input_left)]
+                            .into_iter()
+                            .chain([self.lp_node(Some("RIGHT PLAN:".to_string()), *input_right)])
+                            .collect(),
+                    )
+                },
                 UnoptimizedDispatch {
                     inputs,
                     operation,

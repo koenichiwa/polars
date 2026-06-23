@@ -562,14 +562,14 @@ fn is_sorted_rec(
         IR::SinkMultiple { .. } => None,
         #[cfg(feature = "merge_sorted")]
         IR::MergeSorted { key, .. } => {
-            let s = key.iter()
-                .map( {|c|
-                    Sorted {
+            let s = key
+                .iter()
+                .map({
+                    |c| Sorted {
                         column: c.clone(),
                         descending: None,
                         nulls_last: None,
                     }
-
                 })
                 .collect::<Vec<_>>();
 
