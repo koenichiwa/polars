@@ -561,14 +561,20 @@ fn is_sorted_rec(
         IR::Sink { .. } => None,
         IR::SinkMultiple { .. } => None,
         #[cfg(feature = "merge_sorted")]
-        IR::MergeSorted { key, .. } => Some(IRSorted(
-            [Sorted {
-                column: key[0].clone(),
-                descending: None,
-                nulls_last: None,
-            }]
-            .into(),
-        )),
+        IR::MergeSorted { key, .. } => {
+            let s = key.iter()
+                .map( {|c|
+                    Sorted {
+                        column: c.clone(),
+                        descending: None,
+                        nulls_last: None,
+                    }
+
+                })
+                .collect::<Vec<_>>();
+
+            Some(IRSorted(s.into()))
+        },
         IR::Distinct { input, options } => {
             if !options.maintain_order {
                 return None;
