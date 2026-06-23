@@ -616,7 +616,7 @@ def union(
 @unstable()
 def merge_sorted(
     items: Iterable[PolarsType],
-    key: str,
+    key: str | Sequence[str],
     *,
     maintain_order: bool = False,
 ) -> PolarsType:
