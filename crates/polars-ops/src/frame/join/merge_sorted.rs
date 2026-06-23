@@ -31,6 +31,7 @@ pub fn _merge_sorted_dfs(
         return Ok(right.clone());
     }
 
+    // FIXME: Add dataframe_to_merge_indicator
     let merge_indicator = series_to_merge_indicator(left_s, right_s)?;
     let new_columns = left
         .columns()

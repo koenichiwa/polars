@@ -32,6 +32,7 @@ impl Executor for MergeSorted {
         let profile_name = Cow::Borrowed("Merge Sorted");
         state.record(
             || {
+                // FIXME: multiple columns
                 let lhs = left.column(self.key[0].as_str())?;
                 let rhs = right.column(self.key[0].as_str())?;
 
