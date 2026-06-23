@@ -1239,7 +1239,7 @@ impl ProjectionPushdownVisitor<'_, '_> {
             IR::MergeSorted { key, .. } => {
                 let (projected_names, _) = projected_names_subset_or_return!();
                 let len_before_added_names = projected_names.len();
-                projected_names.insert(key.clone());
+                projected_names.insert(key[0].clone());
                 pushdown_with_added_names!(len_before_added_names)
             },
 

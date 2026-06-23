@@ -563,7 +563,7 @@ fn is_sorted_rec(
         #[cfg(feature = "merge_sorted")]
         IR::MergeSorted { key, .. } => Some(IRSorted(
             [Sorted {
-                column: key.clone(),
+                column: key[0].clone(),
                 descending: None,
                 nulls_last: None,
             }]

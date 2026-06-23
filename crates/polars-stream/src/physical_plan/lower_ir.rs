@@ -351,7 +351,7 @@ pub fn lower_ir(
 
             left_schema.ensure_is_exact_match(right_schema).unwrap();
 
-            let key_dtype = left_schema.try_get(key.as_str())?.clone();
+            let key_dtype = left_schema.try_get(key[0].as_str())?.clone();
 
             let key_name = unique_column_name();
             use polars_plan::plans::{AExprBuilder, RowEncodingVariant};
@@ -359,7 +359,7 @@ pub fn lower_ir(
             // Add the key column as the last column for both inputs.
             for s in [&mut phys_left, &mut phys_right] {
                 let key_dtype = key_dtype.clone();
-                let mut expr = AExprBuilder::col(key.clone(), expr_arena);
+                let mut expr = AExprBuilder::col(key[0].clone(), expr_arena);
                 if key_dtype.is_nested() {
                     expr = AExprBuilder::row_encode(
                         vec![expr.expr_ir(key_name.clone())],

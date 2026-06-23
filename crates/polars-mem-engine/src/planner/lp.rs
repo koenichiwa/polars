@@ -836,7 +836,7 @@ fn create_physical_plan_impl(
             let exec = executors::MergeSorted {
                 input_left,
                 input_right,
-                key,
+                key: key[0].clone(),
             };
             Ok(Box::new(exec))
         },

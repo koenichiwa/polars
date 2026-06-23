@@ -426,8 +426,8 @@ impl<'a> TreeFmtNode<'a> {
                     wh(
                         h,
                         &format!(
-                            "MERGE SORTED[maintain_order: {:?}] ON '{key}'",
-                            maintain_order
+                            "MERGE SORTED[maintain_order: {:?}] ON '{}'",
+                            maintain_order, key[0]
                         ),
                     ),
                     [self.lp_node(Some("LEFT PLAN:".to_string()), *input_left)]

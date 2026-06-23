@@ -783,7 +783,7 @@ pub(crate) fn into_py(py: Python<'_>, plan: &IR) -> PyResult<Py<PyAny>> {
         } => MergeSorted {
             input_left: input_left.0,
             input_right: input_right.0,
-            key: key.to_string(),
+            key: key[0].to_string(),
             maintain_order: *maintain_order,
         }
         .into_py_any(py),

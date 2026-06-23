@@ -1032,8 +1032,8 @@ pub fn write_ir_non_recursive(
             maintain_order,
         } => write!(
             f,
-            "{:indent$}MERGE SORTED[maintain_order: {}] ON '{key}'",
-            "", maintain_order
+            "{:indent$}MERGE SORTED[maintain_order: {}] ON '{}'",
+            "", maintain_order, key[0]
         ),
         IR::UnoptimizedDispatch {
             inputs: _,

@@ -1608,7 +1608,7 @@ pub fn to_alp_impl(lp: DslPlan, ctxt: &mut DslConversionContext) -> PolarsResult
             IR::MergeSorted {
                 input_left,
                 input_right,
-                key: key[0].clone(),
+                key,
                 maintain_order,
             }
         },
