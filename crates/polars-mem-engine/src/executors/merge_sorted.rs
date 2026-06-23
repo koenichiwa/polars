@@ -6,7 +6,7 @@ use super::*;
 pub(crate) struct MergeSorted {
     pub(crate) input_left: Box<dyn Executor>,
     pub(crate) input_right: Box<dyn Executor>,
-    pub(crate) key: PlSmallStr,
+    pub(crate) key: Vec<PlSmallStr>,
 }
 
 impl Executor for MergeSorted {
@@ -32,8 +32,8 @@ impl Executor for MergeSorted {
         let profile_name = Cow::Borrowed("Merge Sorted");
         state.record(
             || {
-                let lhs = left.column(self.key.as_str())?;
-                let rhs = right.column(self.key.as_str())?;
+                let lhs = left.column(self.key[0].as_str())?;
+                let rhs = right.column(self.key[0].as_str())?;
 
                 _merge_sorted_dfs(
                     &left,
