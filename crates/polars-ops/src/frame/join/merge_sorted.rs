@@ -11,8 +11,7 @@ use polars_core::with_match_physical_numeric_polars_type;
 pub fn _merge_sorted_dfs(
     left: &DataFrame,
     right: &DataFrame,
-    left_s: &[&Series],
-    right_s: &[&Series],
+    key_s: &[(&Series, &Series)],
     check_schema: bool,
 ) -> PolarsResult<DataFrame> {
     if check_schema {
@@ -20,8 +19,8 @@ pub fn _merge_sorted_dfs(
     }
 
     polars_ensure!(
-        left_s.iter().zip(right_s).all(|(left_s, right_s)| left_s.dtype() == right_s.dtype()),
-        ComputeError: "merge-sort datatype mismatch: {:?} != {:?}", left_s, right_s
+        key_s.iter().all(|(left_s, right_s)| left_s.dtype() == right_s.dtype()),
+        ComputeError: "merge-sort datatype mismatch: {:?}", key_s
     );
 
     // If one frame is empty, we can return the other immediately.
@@ -31,8 +30,7 @@ pub fn _merge_sorted_dfs(
         return Ok(right.clone());
     }
 
-    let left_s = left_s[0];
-    let right_s = right_s[0];
+    let (left_s, right_s) = key_s[0];
 
     // FIXME: Add dataframe_to_merge_indicator
     let merge_indicator = series_to_merge_indicator(left_s, right_s)?;
