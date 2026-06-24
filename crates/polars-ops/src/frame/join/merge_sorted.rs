@@ -23,9 +23,9 @@ pub fn _merge_sorted_dfs(
     );
 
     // If one frame is empty, we can return the other immediately.
-    if right_s[0].is_empty() {
+    if right.height() == 0 {
         return Ok(left.clone());
-    } else if left_s[0].is_empty() {
+    } else if left.height() == 0 {
         return Ok(right.clone());
     }
 
