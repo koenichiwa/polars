@@ -19,6 +19,11 @@ pub fn _merge_sorted_dfs(
     }
 
     polars_ensure!(
+        !key_s.is_empty(),
+        ComputeError: "merge-sort key is empty"
+    );
+    
+    polars_ensure!(
         key_s.iter().all(|(left_s, right_s)| left_s.dtype() == right_s.dtype()),
         ComputeError: "merge-sort datatype mismatch: {:?}", key_s
     );
@@ -30,10 +35,24 @@ pub fn _merge_sorted_dfs(
         return Ok(right.clone());
     }
 
-    let (left_s, right_s) = key_s[0];
+    let merge_indicator = key_s.iter().try_fold::<Vec<Ordering>, _, PolarsResult<_>>(
+        Vec::new(),
+        |mut acc, (lhs, rhs)| {
+            let child_indicator = series_to_merge_indicator(lhs, rhs)?;
+            if acc.len() == 0 {
+                Ok(child_indicator)
+            } else {
+                acc.iter_mut().zip(child_indicator).for_each(|(p, c)| {
+                    if *p == Ordering::Equal {
+                        *p = c
+                    }
+                });
 
-    // FIXME: Add dataframe_to_merge_indicator
-    let merge_indicator = series_to_merge_indicator(left_s, right_s)?;
+                Ok(acc)
+            }
+        },
+    )?;
+
     let new_columns = left
         .columns()
         .iter()
@@ -257,6 +276,7 @@ where
     const A_INDICATOR: Ordering = Ordering::Less;
     const B_INDICATOR: Ordering = Ordering::Greater;
 
+    // FIXME: merge with parent_indicator
     let a_len = a_iter.size_hint().0;
     let b_len = b_iter.size_hint().0;
     if a_len == 0 {
