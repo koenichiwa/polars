@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use arrow::legacy::utils::CustomIterTools;
 #[cfg(feature = "dtype-categorical")]
 use polars_core::datatypes::CategoricalPhysical;
@@ -57,7 +59,7 @@ pub fn _merge_sorted_dfs(
     Ok(unsafe { DataFrame::new_unchecked(left.height() + right.height(), new_columns) })
 }
 
-fn merge_series(lhs: &Series, rhs: &Series, merge_indicator: &[bool]) -> PolarsResult<Series> {
+fn merge_series(lhs: &Series, rhs: &Series, merge_indicator: &[Ordering]) -> PolarsResult<Series> {
     use DataType::*;
     let out = match lhs.dtype() {
         Null => Series::new_null(PlSmallStr::EMPTY, merge_indicator.len()),
@@ -162,7 +164,7 @@ fn merge_series(lhs: &Series, rhs: &Series, merge_indicator: &[bool]) -> PolarsR
 fn merge_ca<'a, T>(
     a: &'a ChunkedArray<T>,
     b: &'a ChunkedArray<T>,
-    merge_indicator: &[bool],
+    merge_indicator: &[Ordering],
 ) -> ChunkedArray<T>
 where
     T: PolarsDataType + 'static,
@@ -174,7 +176,7 @@ where
     let mut b = b.iter();
 
     let iter = merge_indicator.iter().map(|a_indicator| {
-        if *a_indicator {
+        if *a_indicator != Ordering::Greater {
             a.next().unwrap()
         } else {
             b.next().unwrap()
@@ -188,7 +190,7 @@ where
     }
 }
 
-fn series_to_merge_indicator(lhs: &Series, rhs: &Series) -> PolarsResult<Vec<bool>> {
+fn series_to_merge_indicator(lhs: &Series, rhs: &Series) -> PolarsResult<Vec<Ordering>> {
     #[cfg(feature = "dtype-categorical")]
     if lhs.dtype().is_categorical() || lhs.dtype().is_enum() {
         let cat_phys = lhs.dtype().cat_physical().unwrap();
@@ -210,7 +212,7 @@ fn series_to_merge_indicator(lhs: &Series, rhs: &Series) -> PolarsResult<Vec<boo
     let rhs_s = rhs.to_physical_repr().into_owned();
 
     let out = match lhs_s.dtype() {
-        DataType::Null => vec![false; lhs.len() + rhs.len()],
+        DataType::Null => vec![Ordering::Equal; lhs.len() + rhs.len()],
         DataType::Boolean => {
             let lhs = lhs_s.bool().unwrap();
             let rhs = rhs_s.bool().unwrap();
@@ -250,12 +252,12 @@ fn series_to_merge_indicator(lhs: &Series, rhs: &Series) -> PolarsResult<Vec<boo
 fn get_merge_indicator<T>(
     mut a_iter: impl ExactSizeIterator<Item = T>,
     mut b_iter: impl ExactSizeIterator<Item = T>,
-) -> Vec<bool>
+) -> Vec<Ordering>
 where
     T: PartialOrd + Default + Copy,
 {
-    const A_INDICATOR: bool = true;
-    const B_INDICATOR: bool = false;
+    const A_INDICATOR: Ordering = Ordering::Less;
+    const B_INDICATOR: Ordering = Ordering::Greater;
 
     let a_len = a_iter.size_hint().0;
     let b_len = b_iter.size_hint().0;
@@ -312,7 +314,10 @@ where
 
 #[test]
 fn test_merge_sorted() {
-    fn get_merge_indicator_sliced<T: PartialOrd + Default + Copy>(a: &[T], b: &[T]) -> Vec<bool> {
+    fn get_merge_indicator_sliced<T: PartialOrd + Default + Copy>(
+        a: &[T],
+        b: &[T],
+    ) -> Vec<Ordering> {
         get_merge_indicator(a.iter().copied(), b.iter().copied())
     }
 
@@ -321,7 +326,16 @@ fn test_merge_sorted() {
 
     let out = get_merge_indicator_sliced(&a, &b);
     let expected = [
-        true, true, false, false, true, false, false, true, true, false,
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Greater,
     ];
     //                       1     2     2      3      4     4      5      6     9     10
     assert_eq!(out, expected);
@@ -330,19 +344,44 @@ fn test_merge_sorted() {
     // it is not the inverse because left is preferred when both are equal
     let out = get_merge_indicator_sliced(&b, &a);
     let expected = [
-        false, true, false, true, true, false, true, false, false, true,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Less,
     ];
     assert_eq!(out, expected);
 
     let a = [5, 6, 7, 10];
     let b = [1, 2, 5];
     let out = get_merge_indicator_sliced(&a, &b);
-    let expected = [false, false, true, false, true, true, true];
+    let expected = [
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Less,
+    ];
     assert_eq!(out, expected);
 
     // swap
     // it is not the inverse because left is preferred when both are equal
     let out = get_merge_indicator_sliced(&b, &a);
-    let expected = [true, true, true, false, false, false, false];
+    let expected = [
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Less,
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Greater,
+        Ordering::Greater,
+    ];
     assert_eq!(out, expected);
 }
