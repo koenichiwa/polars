@@ -445,49 +445,50 @@ def test_merge_sorted_with_list_27563() -> None:
     assert_frame_equal(result, expected)
 
 
-def test_merge_sorted_multi_column() -> None:
-    left_simple = pl.DataFrame(
+def test_merge_sorted_accepts_multiple_keys() -> None:
+    left_df = pl.DataFrame(
         {
             "key_1": [1, 2],
             "key_2": [0, 0],
         }
     )
-    right_simple = pl.DataFrame(
+    right_df = pl.DataFrame(
         {
             "key_1": [3, 4],
             "key_2": [0, 0],
         }
     )
-    expected_simple = pl.DataFrame(
+    expected_df = pl.DataFrame(
         {
             "key_1": [1, 2, 3, 4],
             "key_2": [0, 0, 0, 0],
         }
     )
 
-    actual_simple = left_simple.merge_sorted(right_simple, ["key_1", "key_2"])
+    actual_df = left_df.merge_sorted(right_df, ["key_1", "key_2"])
 
-    assert_frame_equal(expected_simple, actual_simple)
+    assert_frame_equal(expected_df, actual_df)
 
-    left_multi = pl.DataFrame(
+def test_merge_sorted_merges_multiple_keys() -> None:
+    left_df = pl.DataFrame(
         {
             "key_1": [1, 1, 1, 2],
             "key_2": [0, 2, 3, 0],
         }
     )
-    right_multi = pl.DataFrame(
+    right_df = pl.DataFrame(
         {
             "key_1": [1, 1, 3, 4],
             "key_2": [1, 4, 0, 0],
         }
     )
-    expected_multi = pl.DataFrame(
+    expected_df = pl.DataFrame(
         {
             "key_1": [1, 1, 1, 1, 1, 2, 3, 4],
             "key_2": [0, 1, 2, 3, 4, 0, 0, 0],
         }
     )
 
-    actual_multi = left_multi.merge_sorted(right_multi, ["key_1", "key_2"])
+    actual_df = left_df.merge_sorted(right_df, ["key_1", "key_2"])
 
-    assert_frame_equal(expected_multi, actual_multi)
+    assert_frame_equal(expected_df, actual_df)
